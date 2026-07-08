@@ -6,6 +6,11 @@ from openai import OpenAI
 from google import genai
 from ollama import Client as OllamaClient
 from anthropic import Anthropic
+from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.llms import Ollama
+from langchain_anthropic import ChatAnthropic
+
 
 # Read the env file
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
@@ -110,3 +115,38 @@ def _call_anthropic(messages: List[Message]) -> str:
     )
 
     return response.content[0].text
+
+def get_langchain_llm():
+    """
+    Returns Langchain LLM wrapper based on .env PROVIDER.
+    Used by agents_v2/ (Langchain-based agents).
+    """
+    if PROVIDER == "openai":
+        return ChatOpenAI(
+            model=MODEL,
+            temperature=0,
+            api_key=OPENAI_API_KEY
+        )
+
+    elif PROVIDER == "google":
+        return ChatGoogleGenerativeAI(
+            model=MODEL,
+            temperature=0,
+            google_api_key=GOOGLE_API_KEY
+        )
+    elif PROVIDER == "anthropic":
+        return ChatAnthropic(
+            model_name=MODEL,
+            temperature=0,
+            anthropic_api_key=ANTHROPIC_API_KEY,
+             max_tokens_to_sample=4096
+        )
+
+    elif PROVIDER == "ollama":
+        return Ollama(
+            model=MODEL,
+            temperature=0,
+            base_url=OLLAMA_HOST
+        )
+    else:
+        raise ValueError(f"Unsupported provider: {PROVIDER}")
