@@ -136,10 +136,9 @@ def get_langchain_llm():
         )
     elif PROVIDER == "anthropic":
         return ChatAnthropic(
-            model_name=MODEL,
+            model=MODEL,
             temperature=0,
             anthropic_api_key=ANTHROPIC_API_KEY,
-             max_tokens_to_sample=4096
         )
 
     elif PROVIDER == "ollama":
