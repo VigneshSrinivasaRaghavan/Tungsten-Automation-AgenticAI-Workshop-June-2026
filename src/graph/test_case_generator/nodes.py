@@ -5,7 +5,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from .state import TestCaseState
-from src.core import get_langchain_llm, pick_requirement
+from src.core import get_langchain_llm, pick_requirement, parse_json_safely
 from src.prompts.testcase_prompts import TESTCASE_SYSTEM_PROMPT
 
 # Setup
@@ -38,14 +38,14 @@ def generate_tests(state: TestCaseState) -> TestCaseState:
         # Call LLM
         response = chain.invoke({"requirement": state["requirement"]})
 
-        # Parse JSON
-        testcases = json.loads(response)
+        # Parse JSON (handles plain JSON and markdown-fenced ```json ... ``` responses)
+        testcases = parse_json_safely(response, OUT_DIR / "raw_output.txt")
         print(f"Generated {len(testcases)} test cases")
 
         # Updates state with the parsed list of test case dicts and clears any previous errors
         return {"test_cases": testcases, "errors": []}
 
-    except json.JSONDecodeError as e:
+    except (json.JSONDecodeError, ValueError) as e:
         # Returns empty test cases and records the JSON parsing failure in state errors
         return {"test_cases": [], "errors": [f"JSON parse error: {e}"]}
     except Exception as e:
