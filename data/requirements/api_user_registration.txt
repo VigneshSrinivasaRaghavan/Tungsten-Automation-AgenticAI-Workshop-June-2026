@@ -6,10 +6,7 @@ Content-Type: application/json
 Request Body:
 {
   "email": "user@example.com",
-  "password": "SecurePass123!",
-  "mobile": "+1234567890",
-  "firstName": "John",
-  "lastName": "Doe"
+  "password": "SecurePassword123!"
 }
 
 Functional Requirements:
